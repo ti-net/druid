@@ -16,10 +16,13 @@
 package com.alibaba.druid.stat;
 
 import java.lang.management.ManagementFactory;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,7 @@ import javax.management.ObjectName;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
+import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.stat.WebAppStatManager;
 import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.druid.support.logging.Log;
@@ -174,6 +178,20 @@ public final class DruidStatService implements DruidStatServiceMBean {
             String clazz = parameters.get("class");
             String method = parameters.get("method");
             return returnJSONResult(RESULT_CODE_SUCCESS, getSpringMethodStatData(clazz, method));
+        }
+        
+        if (url.startsWith("/get-jmx-url.json")) {
+        	Map<String, Object> result = new HashMap<String, Object>();
+        	result.put("urls", StatViewServlet.getJmxUrls());
+        	result.put("current", StatViewServlet.getCurrentJmxUrl());
+        	return returnJSONResult(RESULT_CODE_SUCCESS, result);
+        }
+        
+        if (url.startsWith("/reset-jmx-url.json")) {
+        	String jmx = parameters.get("jmx");
+        	jmx = URLDecoder.decode(jmx);
+        	StatViewServlet.resetJmxUrl(jmx);
+        	return returnJSONResult(RESULT_CODE_SUCCESS, null);
         }
 
         return returnJSONResult(RESULT_CODE_ERROR, "Do not support this request, please contact with administrator.");

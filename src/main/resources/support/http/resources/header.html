@@ -11,15 +11,49 @@
       						<li><a href="datasource.html" class="lang"  langKey="DataSource">DataSource</a></li>
       						<li><a href="sql.html" class="lang"  langKey="SQL">SQL</a></li>
       						<li><a href="wall.html" class="lang"  langKey="Wall">Wall</a></li>
-      						<li><a href="webapp.html" class="lang"  langKey="WebApp">WebApp</a></li>
+      						<!-- <li><a href="webapp.html" class="lang"  langKey="WebApp">WebApp</a></li>
       						<li><a href="weburi.html" class="lang"  langKey="WebURI">WebURI</a></li>
       						<li><a href="websession.html" class="lang"  langKey="Web Session">Web Session</a></li>
       						<li><a href="spring.html" class="lang"  langKey="Spring">Spring</a></li>
-      						<li><a href="api.html" class="lang"  langKey="JSON API">JSON API</a></li>
+      						<li><a href="api.html" class="lang"  langKey="JSON API">JSON API</a></li> -->
       					</ul>
       					<a langKey="ResetAll" class="btn btn-primary lang" href="javascript:druid.common.ajaxRequestForReset();">Reset All</a>
       					<a langKey="LogAndReset" class="btn btn-primary lang" href="javascript:druid.common.ajaxRequestForLogAndReset();">Log And Reset</a>
+      					<select id="jmxUrls"></select>
       				</div>
       			</div>
       		</div>
 		</div>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$.ajax({
+					type: 'GET',
+					url: "get-jmx-url.json",
+					success: function(data) {
+						var jmxUrls = $("#jmxUrls");
+						$.each(data.Content.urls,function(key, value){
+							if(value==data.Content.current){
+								jmxUrls.append("<option value='"+value+"' selected='selected'>"+key+"</option>");
+							}else{
+								jmxUrls.append("<option value='"+value+"'>"+key+"</option>");
+							}
+							
+						});
+					},
+					dataType: "json"
+				});
+				
+				$("#jmxUrls").change(function(){
+					var checkValue=$("#jmxUrls").val();
+					$.ajax({
+						type: 'GET',
+						url: "reset-jmx-url.json",
+						data:{jmx:checkValue},
+						success: function(data) {
+							location.reload();
+						},
+						dataType: "json"
+					});
+				});
+			});
+		</script>
